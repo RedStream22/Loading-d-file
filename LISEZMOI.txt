@@ -1,0 +1,38 @@
+ECRAN DE CHARGEMENT HELDORA RP (photos animees en boucle)
+==========================================================
+
+CE QUE FAIT LA PAGE
+  - Vos 7 photos defilent en boucle, sans fin.
+  - Chaque photo arrive avec sa propre transition (fondu, glissement, zoom,
+    flou, balayage, cercle, flash) et bouge doucement (zoom / mouvement de camera).
+  - En haut a gauche : logo H + "Heldora RP". En bas : la ligne INFO avec les messages.
+
+1) AJOUTER / CHANGER DES PHOTOS
+   - Mettez vos images (JPG 2560x1440, moins de 1,3 Mo chacune) dans le dossier "photos".
+   - Ouvrez index.html avec le Bloc-notes et, dans CONFIG, modifiez la liste :
+       PHOTOS : ["photos/1.jpg", "photos/2.jpg", ...],
+   - SLIDE_SECONDS : duree d'affichage de chaque photo (6 par defaut).
+
+2) MESSAGES INFO : modifiez TIPS dans CONFIG.
+
+2b) MUSIQUE
+   - Fichiers dans le dossier "music" (musique.ogg et musique.mp3 : le meme morceau,
+     le jeu lit celui qu'il supporte). Elle demarre doucement et boucle.
+   - Bouton en haut a droite : le joueur clique pour couper / remettre le son
+     (uniquement de son cote).
+   - Volume : MUSIC_VOLUME dans CONFIG (0.2 = discret). Mettez 0.1 pour plus bas, 0.35 pour plus fort.
+   - Pour changer de musique : remplacez les deux fichiers (gardez les memes noms)
+     ou changez MUSIC_FILES. Mettre [] supprime la musique et le bouton.
+
+3) HEBERGER LA PAGE (obligatoire)
+   Un loading screen GMod est une page web accessible par un lien https.
+   Envoyez TOUT le dossier (index.html, logo.png, photos) sur un hebergement
+   web (site du serveur, GitHub Pages, Netlify...).
+
+4) ACTIVER SUR LE SERVEUR
+   Dans garrysmod/cfg/server.cfg :
+       sv_loadingurl "https://VOTRE-SITE/heldora_loading/index.html"
+   Puis redemarrez le serveur.
+
+5) TESTER
+   Double-cliquez sur index.html : il s'ouvre dans votre navigateur.

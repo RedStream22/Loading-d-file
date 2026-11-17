@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Heldora RP - Chargement</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#071731; --blue:#0a52d6; --pblue:#2a73ff; --red:#e5192d; --white:#f4f7ff;
+  --head:'Oswald','Arial Narrow',Impact,sans-serif; --body:'Inter','Segoe UI',Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--navy);color:var(--white);font-family:var(--body)}
+
+/* ---------- fond ---------- */
+#bgvideo,#slides{position:fixed;inset:0;width:100%;height:100%;object-fit:cover}
+#slides{overflow:hidden;background:radial-gradient(90% 70% at 50% 30%,#10264f 0%,#050b1c 75%)}
+.slide{position:absolute;inset:0;overflow:hidden;opacity:0;z-index:0}
+.slide.under{opacity:1;z-index:1}
+.slide .img{position:absolute;inset:-8%;background-size:cover;background-position:center;will-change:transform}
+
+/* mouvements de caméra (sur l'image) */
+.img.kbIn  {animation:kbIn  14s linear forwards}
+.img.kbOut {animation:kbOut 14s linear forwards}
+.img.kbPanL{animation:kbPanL 14s linear forwards}
+.img.kbPanR{animation:kbPanR 14s linear forwards}
+@keyframes kbIn  {from{transform:scale(1)}to{transform:scale(1.14)}}
+@keyframes kbOut {from{transform:scale(1.14)}to{transform:scale(1)}}
+@keyframes kbPanL{from{transform:scale(1.08) translateX(3%)}to{transform:scale(1.08) translateX(-3%)}}
+@keyframes kbPanR{from{transform:scale(1.08) translateX(-3%)}to{transform:scale(1.08) translateX(3%)}}
+
+/* transitions (sur le calque de la photo qui arrive) */
+.slide[class*="in-"]{opacity:1;z-index:2;animation-duration:1.5s;animation-timing-function:cubic-bezier(.6,0,.2,1);animation-fill-mode:forwards}
+.in-fade  {animation-name:tFade}
+.in-slide {animation-name:tSlide}
+.in-zoom  {animation-name:tZoom}
+.in-blur  {animation-name:tBlur}
+.in-wipe  {animation-name:tWipe}
+.in-circle{animation-name:tCircle}
+.in-flash {animation-name:tFlash}
+@keyframes tFade  {from{opacity:0}to{opacity:1}}
+@keyframes tSlide {from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes tZoom  {from{opacity:0;transform:scale(1.5)}to{opacity:1;transform:scale(1)}}
+@keyframes tBlur  {from{opacity:0;filter:blur(28px) brightness(1.4)}to{opacity:1;filter:blur(0) brightness(1)}}
+@keyframes tWipe  {from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes tCircle{from{clip-path:circle(0% at 50% 55%)}to{clip-path:circle(80% at 50% 55%)}}
+@keyframes tFlash {0%{opacity:0;filter:brightness(3)}35%{opacity:1;filter:brightness(2.2)}100%{opacity:1;filter:brightness(1)}}
+#bgvideo{display:none}
+.shade{position:fixed;inset:0;pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(4,10,24,.55) 0%,rgba(4,10,24,.05) 35%,rgba(4,10,24,.35) 65%,rgba(4,10,24,.92) 100%),
+    radial-gradient(120% 90% at 50% 40%,transparent 40%,rgba(2,6,16,.75) 100%)}
+
+/* gyrophares police : double flash rouge / bleu en alternance */
+.pl{position:fixed;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:0}
+.pl.r{background:radial-gradient(55% 75% at 0% 0%,rgba(229,25,45,.60),transparent 72%);animation:flashR 1.4s infinite}
+.pl.b{background:radial-gradient(55% 75% at 100% 0%,rgba(42,115,255,.62),transparent 72%);animation:flashB 1.4s infinite}
+@keyframes flashR{0%{opacity:1}8%{opacity:0}16%{opacity:1}24%{opacity:0}100%{opacity:0}}
+@keyframes flashB{0%,50%{opacity:0}58%{opacity:1}66%{opacity:0}74%{opacity:1}82%,100%{opacity:0}}
+
+/* ---------- contenu ---------- */
+.top{position:fixed;top:4vh;left:4vw;right:4vw;display:flex;justify-content:space-between;align-items:flex-start}
+.brand{display:flex;align-items:center;gap:18px}
+.brand img{width:92px;height:92px;border-radius:50%;box-shadow:0 0 0 3px rgba(255,255,255,.12),0 10px 40px rgba(10,82,214,.55)}
+.brand h1{font-family:var(--head);font-size:44px;letter-spacing:4px;line-height:1;text-transform:uppercase}
+.brand h1 span{color:var(--pblue)}
+.brand p{font-size:13px;letter-spacing:5px;text-transform:uppercase;opacity:.7;margin-top:8px}
+
+.badge{display:flex;gap:10px;align-items:center;padding:10px 18px;border-radius:999px;
+  background:rgba(7,23,49,.65);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(6px);
+  font-family:var(--head);letter-spacing:3px;font-size:15px;text-transform:uppercase}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--red);animation:blink 1s infinite}
+@keyframes blink{50%{background:var(--pblue)}}
+
+.hero{position:fixed;left:4vw;bottom:25vh;max-width:56vw}
+.hero small{font-family:var(--head);letter-spacing:8px;color:var(--pblue);font-size:18px;text-transform:uppercase}
+.hero h2{font-family:var(--head);font-weight:700;font-size:clamp(46px,7.4vw,118px);line-height:.95;text-transform:uppercase;margin:10px 0 14px;
+  text-shadow:0 6px 40px rgba(0,0,0,.6)}
+.hero h2 em{font-style:normal;color:transparent;-webkit-text-stroke:2px var(--white)}
+.hero small,.hero p{text-shadow:0 2px 12px rgba(0,0,0,.9)}
+.hero p{font-size:18px;opacity:.9;max-width:640px;line-height:1.5}
+
+.panel{position:fixed;right:4vw;bottom:25vh;width:310px;padding:20px 22px;border-radius:14px;
+  background:rgba(7,23,49,.68);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(8px)}
+.panel h3{font-family:var(--head);letter-spacing:4px;font-size:15px;text-transform:uppercase;color:var(--pblue);margin-bottom:12px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid rgba(255,255,255,.08);font-size:14px}
+.row b{font-weight:600;text-align:right;word-break:break-all}
+.row span{opacity:.65}
+
+.bottom{position:fixed;left:4vw;right:4vw;bottom:4vh}
+.tip{height:24px;font-size:15px;opacity:.9;margin-bottom:14px;display:flex;gap:10px;align-items:center;transition:opacity .5s}
+.tip i{font-style:normal;font-family:var(--head);letter-spacing:3px;background:var(--red);padding:2px 8px;border-radius:4px;font-size:12px}
+.barwrap{display:flex;align-items:center;gap:22px}
+.pct{font-family:var(--head);font-size:44px;min-width:110px;line-height:1}
+.pct small{font-size:20px;opacity:.7}
+.bar{flex:1}
+.track{height:8px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;position:relative}
+.fill{height:100%;width:0;border-radius:99px;
+  background:linear-gradient(90deg,var(--red) 0%,var(--pblue) 100%);box-shadow:0 0 22px rgba(42,115,255,.9);transition:width .25s}
+.status{display:flex;justify-content:space-between;margin-top:10px;font-size:13px;opacity:.7}
+.status #file{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%}
+
+/* musique */
+.music{position:fixed;left:4vw;top:19vh;display:none;align-items:center;gap:10px;font-size:13px;opacity:.85}
+.music button{border:0;cursor:pointer;width:36px;height:36px;border-radius:50%;background:var(--blue);color:#fff;font-size:14px}
+.music input{width:110px}
+
+/* ---------- bouton musique (haut à droite) ---------- */
+.sound{position:fixed;top:4vh;right:4vw;z-index:6;display:flex;align-items:center;gap:10px;height:48px;padding:0 16px;
+  border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(7,23,49,.65);backdrop-filter:blur(6px);
+  color:#fff;cursor:pointer;transition:background .2s,transform .15s}
+.sound:hover{background:rgba(10,82,214,.8)}
+.sound:active{transform:scale(.95)}
+.sound .x{display:none}
+.sound.muted .w{display:none}
+.sound.muted .x{display:block}
+.sound .eq{display:flex;align-items:flex-end;gap:3px;height:18px}
+.sound .eq i{display:block;width:3px;height:4px;border-radius:2px;background:var(--pblue)}
+.sound.on .eq i{animation:eq 1s ease-in-out infinite}
+.sound.on .eq i:nth-child(2){animation-delay:-.3s}
+.sound.on .eq i:nth-child(3){animation-delay:-.6s}
+.sound.on .eq i:nth-child(4){animation-delay:-.15s}
+@keyframes eq{0%,100%{height:4px}50%{height:18px}}
+
+/* ---------- MODE CINEMA ---------- */
+#bgvideo{transition:opacity .5s}
+.bars,.lower,.vmute{display:none}
+body.cinema .hero,body.cinema .panel,body.cinema .badge,body.cinema .pl,body.cinema .music{display:none}
+body.cinema .shade{background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,transparent 20%,transparent 68%,rgba(0,0,0,.75) 100%)}
+body.cinema .brand img{width:58px;height:58px}
+body.cinema .brand h1{font-size:28px;letter-spacing:3px}
+body.cinema .brand p{font-size:10px;letter-spacing:4px;margin-top:4px}
+body.cinema .tip{font-size:13px;height:20px;margin-bottom:8px;opacity:.85}
+body.cinema .pct{font-size:28px;min-width:76px}
+body.cinema .pct small{font-size:14px}
+body.cinema .barwrap{gap:16px}
+body.cinema .status{font-size:11px;margin-top:6px}
+body.cinema .track{height:4px}
+body.cinema .lower{display:block;position:fixed;left:4vw;bottom:22vh;opacity:0;font-family:var(--head);text-transform:uppercase;
+  animation:lower 9s 1.2s forwards;text-shadow:0 4px 30px rgba(0,0,0,.8)}
+body.cinema .lower span{display:block;letter-spacing:9px;font-size:15px;color:var(--pblue);margin-bottom:6px}
+body.cinema .lower b{font-size:54px;letter-spacing:7px;font-weight:700}
+@keyframes lower{0%{opacity:0;transform:translateY(16px)}12%,78%{opacity:1;transform:none}100%{opacity:0}}
+body.cinema .vmute{display:block;position:fixed;right:4vw;top:4vh;width:38px;height:38px;border-radius:50%;border:0;cursor:pointer;
+  background:rgba(7,23,49,.7);color:#fff;font-size:16px;z-index:5}
+body.cinema.lb .bars{display:block;position:fixed;left:0;right:0;height:12vh;background:#000;z-index:1}
+body.cinema.lb .top-bar{top:0}
+body.cinema.lb .bot-bar{bottom:0}
+body.cinema.lb .top,body.cinema.lb .bottom,body.cinema.lb .vmute{z-index:2}
+body.cinema.lb .top{top:2.2vh}
+body.cinema.lb .vmute{top:3.2vh}
+body.cinema.lb .bottom{bottom:1.6vh}
+/* retirés à la demande : sous-titre, barre de chargement, bouton son */
+.brand p,.barwrap,.vmute{display:none !important}
+.bottom{bottom:5vh}
+body.cinema .tip{font-size:16px;height:24px;margin-bottom:0}
+body.cinema.nophoto .pl{display:block}
+body.cinema.lb .lower{bottom:17vh}
+</style>
+</head>
+<body>
+
+<div id="slides"><div class="slide"><div class="img"></div></div><div class="slide"><div class="img"></div></div></div>
+<video id="bgvideo" playsinline></video>
+<div class="shade"></div>
+<div class="pl r"></div><div class="pl b"></div>
+<div class="bars top-bar"></div><div class="bars bot-bar"></div>
+<div class="lower"><span id="lowerSub"></span><b id="lowerMain"></b></div>
+<button class="vmute" id="vmute"></button>
+<button class="sound on" id="sound" title="Couper / remettre la musique" aria-label="Musique">
+  <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+    <path d="M3 9v6h4l5 4V5L7 9H3z" fill="currentColor"/>
+    <path class="w" d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path class="x" d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+  <span class="eq"><i></i><i></i><i></i><i></i></span>
+</button>
+
+<div class="top">
+  <div class="brand">
+    <img src="logo.png" alt="">
+    <div><h1 id="srvName">HELDORA <span>RP</span></h1><p id="srvTag">DarkRP • Roleplay sérieux</p></div>
+  </div>
+  <div class="badge"><div class="dot"></div><span id="badgeTxt">Police en patrouille</span></div>
+</div>
+
+<div class="music" id="music"><button id="mbtn">&#10074;&#10074;</button><span>Musique</span><input id="mvol" type="range" min="0" max="100" value="25"></div>
+
+<div class="hero">
+  <small id="heroSmall">Bienvenue à</small>
+  <h2 id="heroTitle">South<em>Side</em></h2>
+  <p id="heroText">Patrouillez, braquez, construisez votre empire. Les rues de South Side n'attendent que vous.</p>
+</div>
+
+<div class="panel">
+  <h3>Infos serveur</h3>
+  <div class="row"><span>Carte</span><b id="iMap">rp_southside</b></div>
+  <div class="row"><span>Mode de jeu</span><b id="iMode">DarkRP</b></div>
+  <div class="row"><span>Slots</span><b id="iSlots">-</b></div>
+  <div class="row"><span>Discord</span><b id="iDiscord">discord.gg/...</b></div>
+  <div class="row"><span>Votre SteamID</span><b id="iSteam">-</b></div>
+</div>
+
+<div class="bottom">
+  <div class="tip" id="tip"><i>INFO</i><span id="tipTxt"></span></div>
+  <div class="barwrap">
+    <div class="pct"><span id="pct">0</span><small>%</small></div>
+    <div class="bar">
+      <div class="track"><div class="fill" id="fill"></div></div>
+      <div class="status"><span id="file">Connexion au serveur...</span><span id="stat">Initialisation</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   CONFIG : modifiez uniquement cette partie
+   ===================================================================== */
+var CONFIG = {
+  SERVER_NAME : "HELDORA <span>RP</span>",   // titre en haut (le <span> met "RP" en bleu)
+  TAGLINE     : "",
+  BADGE       : "Police en patrouille",
+
+  HERO_SMALL  : "Bienvenue à",
+  HERO_TITLE  : "South<em>Side</em>",        // <em> = mot en contour
+  HERO_TEXT   : "Patrouillez, braquez, construisez votre empire. Les rues de South Side n'attendent que vous.",
+
+  DISCORD     : "discord.gg/VOTRE-LIEN",
+
+  // "cinema"  = la vidéo en plein écran, interface minimale (style FiveM)
+  // "complet" = grand titre + panneau d'infos serveur par-dessus
+  MODE        : "cinema",
+  LETTERBOX   : false,                         // bandes noires cinéma en haut et en bas
+
+  // Photos qui défilent en fond (mettez-les dans le dossier "photos", à côté de index.html)
+  PHOTOS        : ["photos/1.jpg","photos/2.jpg","photos/3.jpg","photos/4.jpg","photos/5.jpg","photos/6.jpg","photos/7.jpg"],                         // ex : ["photos/1.jpg", "photos/2.jpg", "photos/3.jpg"]
+  SLIDE_SECONDS : 6,                          // durée d'affichage de chaque photo
+
+  // Vidéos de fond (optionnel, remplace les photos si renseigné), jouées l'une après l'autre en boucle.
+  // WEBM (VP9) recommandé : c'est le format le plus sûr dans GMod.
+  // Mettez les fichiers dans le même dossier que index.html.
+  // Laissez [] pour garder la ville animée.
+  VIDEOS      : [],                           // ex : ["video1.webm", "video2.webm"]
+  VIDEO_SOUND : true,                         // son de la vidéo (bouton couper/remettre en bas à droite)
+  VIDEO_VOLUME: 0.5,
+
+  // Petit titre qui apparaît au début en bas à gauche (mode cinema)
+  TITLE_MAIN  : "Heldora RP",
+  TITLE_SUB   : "South Side",
+
+  // Musique : le joueur peut la couper avec le bouton en haut à droite.
+  // Le 1er fichier est lu si le jeu le supporte (ogg), sinon le 2e (mp3). [] = pas de musique.
+  MUSIC_FILES : ["music/musique.ogg", "music/musique.mp3"],
+  MUSIC_VOLUME: 0.2,        // 0 = muet, 1 = fort. 0.2 = discret mais audible
+
+  // Messages qui défilent en bas (règles, conseils...)
+  TIPS : [
+    "Appelez la police au 911 avant de tirer sur une personne.",
+    "Le FearRP est obligatoire : votre personnage tient à la vie.",
+    "Obéissez aux ordres des agents du NYPD lors d'un contrôle.",
+    "Restez dans votre rôle en toutes circonstances.",
+    "Respectez les autres joueurs et le staff de South Side.",
+    "Besoin d'aide ? Ouvrez un ticket sur notre Discord."
+  ]
+};
+
+/* =====================================================================
+   NE PAS TOUCHER EN DESSOUS (sauf si vous savez ce que vous faites)
+   ===================================================================== */
+function $(id){return document.getElementById(id)}
+
+// ---- textes
+$('srvName').innerHTML = CONFIG.SERVER_NAME;
+$('srvTag').textContent = CONFIG.TAGLINE;
+$('badgeTxt').textContent = CONFIG.BADGE;
+$('heroSmall').textContent = CONFIG.HERO_SMALL;
+$('heroTitle').innerHTML = CONFIG.HERO_TITLE;
+$('heroText').textContent = CONFIG.HERO_TEXT;
+$('iDiscord').textContent = CONFIG.DISCORD;
+
+// ---- tips
+(function(){
+  var i = 0, el = $('tipTxt'), box = $('tip');
+  function show(){ box.style.opacity = 0; setTimeout(function(){ el.textContent = CONFIG.TIPS[i % CONFIG.TIPS.length]; i++; box.style.opacity = 1; }, 450); }
+  show(); setInterval(show, 6000);
+})();
+
+// ---- mode d'affichage
+if (CONFIG.MODE === 'cinema') {
+  document.body.classList.add('cinema');
+  if (CONFIG.LETTERBOX) document.body.classList.add('lb');
+}
+$('lowerMain').textContent = CONFIG.TITLE_MAIN;
+$('lowerSub').textContent = CONFIG.TITLE_SUB;
+
+// ---- vidéos de fond (playlist)
+if (CONFIG.VIDEOS && CONFIG.VIDEOS.length) {
+  var v = $('bgvideo'), vi = 0, VIDS = CONFIG.VIDEOS;
+  v.style.display = 'block'; $('slides').style.display = 'none';
+  v.muted = !CONFIG.VIDEO_SOUND; v.volume = CONFIG.VIDEO_VOLUME; v.loop = (VIDS.length === 1);
+  var playIdx = function(i){
+    v.style.opacity = 0;
+    setTimeout(function(){
+      v.src = VIDS[i];
+      var pr = v.play();
+      if (pr && pr.catch) pr.catch(function(){ v.muted = true; v.play(); });
+      v.style.opacity = 1;
+    }, VIDS.length > 1 ? 500 : 0);
+  };
+  v.addEventListener('ended', function(){ vi = (vi + 1) % VIDS.length; playIdx(vi); });
+  playIdx(0);
+  var mb = $('vmute');
+  mb.style.display = 'block';
+  mb.innerHTML = v.muted ? '&#128263;' : '&#128266;';
+  mb.onclick = function(){ v.muted = !v.muted; this.innerHTML = v.muted ? '&#128263;' : '&#128266;'; };
+}
+
+// ---- musique (volume bas, bouton pour couper)
+(function(){
+  var btn = $('sound'), files = CONFIG.MUSIC_FILES || [];
+  if (!files.length) { btn.style.display = 'none'; return; }
+  var a = document.createElement('audio'); a.loop = true; a.preload = 'auto';
+  files.forEach(function(f){
+    var src = document.createElement('source'); src.src = f;
+    src.type = /\.ogg$/i.test(f) ? 'audio/ogg' : 'audio/mpeg'; a.appendChild(src);
+  });
+  document.body.appendChild(a);
+  var target = CONFIG.MUSIC_VOLUME, muted = false, started = false, fade = null;
+  a.volume = 0;
+  function ui(){ btn.classList.toggle('muted', muted); btn.classList.toggle('on', !muted && started); }
+  function fadeIn(){
+    var t0 = Date.now(); clearInterval(fade);
+    fade = setInterval(function(){
+      var k = Math.min(1, (Date.now() - t0) / 3000);
+      if (!muted) a.volume = target * k;
+      if (k >= 1) clearInterval(fade);
+    }, 50);
+  }
+  function begin(){
+    var p = a.play();
+    function ok(){ started = true; ui(); fadeIn(); }
+    if (p && p.then) {
+      p.then(ok).catch(function(){ muted = true; started = false; ui(); });   // lecture bloquée : démarre au clic
+    } else ok();
+  }
+  btn.onclick = function(){
+    if (!started) { muted = false; a.muted = false; a.volume = target; var p = a.play(); started = true; ui(); return; }
+    muted = !muted; a.muted = muted;
+    if (!muted) a.volume = target;
+    ui();
+  };
+  begin();
+})();
+
+// ---- progression
+var target = 0, shown = 0;
+function setProgress(p){ target = Math.max(0, Math.min(100, p)); }
+setInterval(function(){
+  shown += (target - shown) * 0.12;
+  if (Math.abs(target - shown) < 0.1) shown = target;
+  $('pct').textContent = Math.round(shown);
+  $('fill').style.width = shown + '%';
+}, 33);
+
+var filesTotal = 0, filesNeeded = 0, demoTimer = null;
+function recalc(){ if (filesTotal > 0) setProgress(((filesTotal - filesNeeded) / filesTotal) * 100); }
+
+/* ---- fonctions appelées par Garry's Mod ---- */
+function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode){
+  if (mapname) $('iMap').textContent = mapname;
+  if (maxplayers) $('iSlots').textContent = maxplayers + ' joueurs';
+  if (steamid) $('iSteam').textContent = steamid;
+  if (gamemode) $('iMode').textContent = gamemode;
+}
+function SetFilesTotal(total){ stopDemo(); filesTotal = Number(total) || 0; recalc(); }
+function SetFilesNeeded(needed){ stopDemo(); filesNeeded = Number(needed) || 0; recalc(); }
+function DownloadingFile(name){ stopDemo(); $('file').textContent = 'Téléchargement : ' + String(name).split('/').pop(); }
+function SetStatusChanged(status){
+  stopDemo(); $('stat').textContent = status;
+  var s = String(status).toLowerCase();
+  if (s.indexOf('workshop') > -1) setProgress(Math.max(target, 20));
+  if (s.indexOf('sending client info') > -1) setProgress(Math.max(target, 90));
+  if (s.indexOf('starting lua') > -1 || s.indexOf('client info') > -1) setProgress(Math.max(target, 96));
+}
+
+/* ---- mode démo : si la page est ouverte dans un navigateur normal ---- */
+var IN_GMOD = /Valve|GMod|Source/i.test(navigator.userAgent);
+function stopDemo(){ if (demoTimer) { clearInterval(demoTimer); demoTimer = null; } }
+if (!IN_GMOD) {
+  var d = 0, steps = ['Récupération des fichiers...','Téléchargement du Workshop...','Chargement de la carte...','Envoi des infos client...','Démarrage de Lua...'];
+  GameDetails('Heldora RP','', 'rp_southside', 64, 'STEAM_0:1:123456789', 'darkrp');
+  demoTimer = setInterval(function(){
+    d += Math.random() * 1.6; if (d > 100) d = 0;
+    setProgress(d);
+    $('stat').textContent = steps[Math.min(steps.length - 1, Math.floor(d / 21))];
+    $('file').textContent = 'Téléchargement : materials/southside/map_' + Math.floor(d) + '.vtf';
+  }, 220);
+}
+
+/* =====================================================================
+   DIAPORAMA DE PHOTOS : une transition différente par photo, caméra animée, boucle infinie
+   ===================================================================== */
+(function(){
+  var P = CONFIG.PHOTOS || [];
+  if (!P.length) { document.body.classList.add('nophoto'); return; }
+  var TYPES = ['fade', 'slide', 'zoom', 'blur', 'wipe', 'circle', 'flash'];
+  var KB    = ['kbIn', 'kbPanL', 'kbOut', 'kbPanR'];
+  var els = document.querySelectorAll('#slides .slide'), front = 0, cur = 0, first = true;
+  P.forEach(function(u){ var im = new Image(); im.src = u; });
+
+  function restart(el, cls){ el.className = el.className.split(' ')[0]; void el.offsetWidth; el.className += ' ' + cls; }
+
+  function show(i){
+    var inc = els[front ^ 1], out = els[front], img = inc.firstElementChild;
+    img.style.backgroundImage = 'url("' + P[i] + '")';
+    out.className = 'slide under';
+    inc.className = 'slide'; void inc.offsetWidth;
+    inc.className = 'slide in-' + (first ? 'fade' : TYPES[i % TYPES.length]);
+    img.className = 'img'; void img.offsetWidth;
+    img.className = 'img ' + KB[i % KB.length];
+    first = false;
+    setTimeout(function(){ out.className = 'slide'; }, 1700);
+    front ^= 1;
+  }
+
+  show(0);
+  if (P.length > 1) {
+    setInterval(function(){ cur = (cur + 1) % P.length; show(cur); }, (CONFIG.SLIDE_SECONDS || 6) * 1000);
+  }
+})();
+</script>
+</body>
+</html>
